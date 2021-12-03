@@ -9,6 +9,22 @@ const useEmployeeStore = create((set) => ({
         employee: [...state.employee, newEmployee],
       };
     }),
+
+  getEmployee: (employee) =>
+    set((state) => {
+      return {
+        ...state,
+        employee: employee,
+      };
+    }),
+
+  deleteEmployee: (Id) =>
+    set((state) => {
+      return {
+        ...state,
+        employee: state.employee.filter((e) => e._id !== Id),
+      };
+    }),
 }));
 
 export default useEmployeeStore;

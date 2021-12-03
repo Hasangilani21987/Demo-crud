@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { Button, Layout, Menu, Form, Upload, Input } from "antd";
 import {
   MenuUnfoldOutlined,
@@ -6,8 +7,8 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import React, { useState } from "react";
-import useEmployeeStore from "../../Store/store";
-import { app } from "../../../Firebase";
+import useEmployeeStore from "../../../Store/store";
+import { app } from "../../../../Firebase";
 import {
   ref,
   uploadBytes,

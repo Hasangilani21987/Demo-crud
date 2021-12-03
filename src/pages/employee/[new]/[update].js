@@ -6,6 +6,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import React, { useState } from "react";
+import { useRouter } from "next/router";
 
 const { Header, Sider, Content } = Layout;
 
@@ -45,6 +46,11 @@ const tailFormItemLayout = {
 
 const Update = () => {
   const [collapsed, setcollapsed] = useState(false);
+  const router = useRouter();
+
+  const { update } = router.query;
+
+  console.log(update);
 
   const toggle = () => {
     setcollapsed(!collapsed);
@@ -113,7 +119,7 @@ const Update = () => {
             }}
           >
             <div>
-              <h4>{`Employee/New`}</h4>
+              <h4>{`Employee/Update`}</h4>
 
               <Form
                 {...formItemLayout}

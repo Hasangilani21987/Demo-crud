@@ -3,67 +3,88 @@ import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   UserOutlined,
+  EditTwoTone,
+  DeleteTwoTone,
 } from "@ant-design/icons";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { app } from "../../../Firebase";
 import useEmployeeStore from "../../Store/store";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 
 const { Header, Sider, Content } = Layout;
 const db = getFirestore(app);
 
-const All = (props) => {
-  console.log(props);
+const All = () => {
+  // console.log(props);
   const [collapsed, setcollapsed] = useState(false);
+  const employeeStore = useEmployeeStore();
+  const employee = useEmployeeStore((state) => state.employee);
 
   const toggle = () => {
     setcollapsed(!collapsed);
   };
 
-  //   useEffect(() => {
-  //     const unsub = onSnapshot(collection(db, "Employee"), (snapshot) => {
-  //       snapshot.forEach((doc) => {
-  //         console.log(doc.id);
-  //       });
-  //     });
-  //   });
+  const handleDelete = async (Id) => {
+    await deleteDoc(doc(db, "Employee", Id))
+      .then((res) => {
+        employeeStore.deleteEmployee(Id);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
-//   console.log(employeeData);
-
-  const dataSource = [
-    {
-      key: "1",
-      photo: "",
-      fname: "John Brown",
-      lname: "Hassan",
-      email: "email",
-      address: "New York No. 1 Lake Park",
-      tags: ["nice", "developer"],
-    },
-  ];
+  useEffect(async () => {
+    let Data = [];
+    const querySnapshot = await getDocs(collection(db, "Employee"));
+    querySnapshot.forEach((doc) => {
+      Data.push({
+        ...doc.data(),
+        _id: doc.id,
+      });
+    });
+    employeeStore.getEmployee(Data);
+  }, []);
 
   const columns = [
     {
+      title: "No.",
+      dataIndex: "",
+      width: "1%",
+      render: (text, record, index) => {
+        return index + 1;
+      },
+    },
+    {
       title: "Photo",
-      dataIndex: "photo",
+      dataIndex: "",
       key: "photo",
+      width: "5%",
+      render: (text, record) => {
+        return <img src={record.employeeImage} />;
+      },
     },
     {
-      title: "First Name",
-      dataIndex: "fname",
-      key: "name",
-      render: (text) => <a>{text}</a>,
-    },
-    {
-      title: "Last Name",
-      dataIndex: "lname",
-      key: "lanme",
+      title: "Name",
+      dataIndex: "",
+      key: "fname",
+      width: "10%",
+      render: (text, record) => {
+        return <h4>{record.first_name + " " + record.last_name}</h4>;
+      },
     },
     {
       title: "Email",
       key: "email",
       dataIndex: "email",
+      width: "5%",
     },
     {
       title: "Address",
@@ -72,12 +93,24 @@ const All = (props) => {
     },
     {
       title: "Action",
-      key: "action",
-      render: (text, record) => (
-        <Space size="middle">
-          <a>Invite {record.name}</a>
-          <a>Delete</a>
-        </Space>
+      dataIndex: "",
+      width: "5%",
+      render: (text, record, index) => (
+        <span
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Link href={`/employee/update/${record._id}`}>
+            <EditTwoTone style={{ paddingRight: 5 }} />
+          </Link>
+          <DeleteTwoTone
+            style={{ paddingLeft: 5, color: "red", cursor: "pointer" }}
+            onClick={() => handleDelete(record._id)}
+          />
+        </span>
       ),
     },
   ];
@@ -134,7 +167,13 @@ const All = (props) => {
             </Link>
           </div>
           <div style={{ marginTop: 20 }}>
-            <Table dataSource={dataSource} columns={columns} bordered />;
+            <Table
+              dataSource={employee}
+              columns={columns}
+              bordered
+              size="medium"
+            />
+            ;
           </div>
         </Content>
       </Layout>
@@ -142,19 +181,8 @@ const All = (props) => {
   );
 };
 
-export async function getServerSideProps(context) {
-  const Data = [];
-  const querySnapshot = await getDocs(collection(db, "Employee"));
-  querySnapshot.forEach((doc) => {
-    Data.push({
-      ...doc.data(),
-      _id: doc.id,
-    });
-  });
+// export async function getServerSideProps(context) {
 
-  return {
-    props: { employeeData: Data },
-  };
-};
+// };
 
 export default All;
